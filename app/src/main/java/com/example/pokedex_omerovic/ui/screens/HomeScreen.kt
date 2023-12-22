@@ -28,10 +28,6 @@ import com.example.pokedex_omerovic.model.PokemonModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +72,15 @@ fun PokemonCard(pokemon: PokemonModel) {
             .clickable {
                 val intent = Intent(context, DetailPokemon::class.java)
                 intent.putExtra("pokemonId", pokemon.id)
+
+                if (pokemon.evolutions.before.isNotEmpty()) {
+                    intent.putIntegerArrayListExtra("EvolutionsBeforeIds", ArrayList(pokemon.evolutions.before))
+                }
+
+                if (pokemon.evolutions.after.isNotEmpty()) {
+                    intent.putIntegerArrayListExtra("EvolutionsAfterIds", ArrayList(pokemon.evolutions.after))
+                }
+
                 context.startActivity(intent)
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -133,7 +138,7 @@ fun PokemonCard(pokemon: PokemonModel) {
 }
 
 @Composable
-fun getDrawableForType(type: String): Int? {
+public fun getDrawableForType(type: String): Int? {
     return when (type) {
         "Eau" -> R.drawable.eau
         "Feu" -> R.drawable.feu
