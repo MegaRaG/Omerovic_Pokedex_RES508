@@ -32,7 +32,7 @@ class PokedexModel  : ViewModel() {
             try {
                 val pokemonList = PokedexApi.retrofitService.getPokemon()
                 pokedexUiState = PokedexUiState.Success(pokemonList)
-                pokemons = pokemonList // Assurez-vous d'affecter la liste de pokemons ici
+                pokemons = pokemonList
             } catch (e: IOException) {
                 pokedexUiState = PokedexUiState.Error
             } catch (e: HttpException) {

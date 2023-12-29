@@ -1,5 +1,6 @@
 package com.example.pokedex_omerovic.ui.screens
 
+import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,19 +35,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import coil.compose.AsyncImage
 import com.example.pokedex_omerovic.ui.theme.typeColors
-
-@Composable
-fun HomeScreen(
-    pokedexUiState: PokedexUiState,
-    modifier: Modifier = Modifier
-) {
-    when (pokedexUiState) {
-        is PokedexUiState.Loading -> LoadingScreen(modifier = modifier.fillMaxSize())
-        is PokedexUiState.Success -> ResultScreen(pokedexUiState.pokemonList, modifier = modifier.fillMaxWidth()) // Utilisez pokemonList ici
-        is PokedexUiState.Error -> ErrorScreen(modifier = modifier.fillMaxSize())
-    }
-}
-
 @Composable
 fun ResultScreen(pokemons: List<PokemonModel>, modifier: Modifier = Modifier) {
     LazyColumn(
@@ -99,7 +87,7 @@ fun PokemonCard(pokemon: PokemonModel) {
 
                 pokemon.type.take(2).forEach { typeName ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        getDrawableForType(typeName)?.let { painterResource(id = it) }?.let {
+                        getDrawableForType(context, typeName)?.let { painterResource(id = it) }?.let {
                             Image(
                                 painter = it,
                                 contentDescription = null,
@@ -138,18 +126,20 @@ fun PokemonCard(pokemon: PokemonModel) {
 }
 
 @Composable
-public fun getDrawableForType(type: String): Int? {
-    return when (type) {
-        "Eau" -> R.drawable.eau
-        "Feu" -> R.drawable.feu
-        "Plante" -> R.drawable.plante
-        "Poison" -> R.drawable.poison
-        "Insecte" -> R.drawable.insecte
-        "Vol" -> R.drawable.vol
-        "Normal" -> R.drawable.normal
+fun getDrawableForType(context: Context, type: String): Int? {
+    val resourceId = when (type) {
+        context.getString(R.string.Pokemon_Type_Eau) -> R.drawable.eau
+        context.getString(R.string.Pokemon_Type_Feu) -> R.drawable.feu
+        context.getString(R.string.Pokemon_Type_Plante) -> R.drawable.plante
+        context.getString(R.string.Pokemon_Type_Poison) -> R.drawable.poison
+        context.getString(R.string.Pokemon_Type_Insecte) -> R.drawable.insecte
+        context.getString(R.string.Pokemon_Type_Vol) -> R.drawable.vol
+        context.getString(R.string.Pokemon_Type_Normal) -> R.drawable.normal
         else -> null
     }
+    return resourceId
 }
+
 
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier) {

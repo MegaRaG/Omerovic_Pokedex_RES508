@@ -3,4 +3,12 @@
     <string name="loading_failed">Failed to load</string>
     <string name="loading">Loading</string>
     <string name="title_DetailPokemon_Page">Détail</string>
+
+    <string name="Pokemon_Type_Eau">Eau</string>
+    <string name="Pokemon_Type_Feu">Feu</string>
+    <string name="Pokemon_Type_Plante">Plante</string>
+    <string name="Pokemon_Type_Poison">Poison</string>
+    <string name="Pokemon_Type_Insecte">Insecte</string>
+    <string name="Pokemon_Type_Vol">Vol</string>
+    <string name="Pokemon_Type_Normal">Normal</string>
 </resources>
