@@ -83,8 +83,7 @@ fun PokemonCard(pokemon: PokemonModel) {
                     .weight(1f)
                     .padding(8.dp)
             ) {
-                Text(text = "No. ${pokemon.id}")
-
+                Text(text = "No. ${pokemon.id}", color = Color.White)
                 pokemon.type.take(2).forEach { typeName ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         getDrawableForType(context, typeName)?.let { painterResource(id = it) }?.let {
@@ -118,7 +117,8 @@ fun PokemonCard(pokemon: PokemonModel) {
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color.White
                 )
             }
         }

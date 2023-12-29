@@ -85,7 +85,7 @@ class DetailPokemon : ComponentActivity() {
                                     finish()
                                 }
                             } else {
-                                Text("Aucun Pokémon trouvé avec l'ID: $pokemonId")
+                                Text("Aucun Pokémon trouvé avec l'ID: $pokemonId", color = Color.Black)
                             }
                         }
                     }
@@ -110,8 +110,8 @@ fun PokemonDetailsContent(
         Image(
             painter = painterResource(id = R.drawable.fondpokedexdetail),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),  // Ajustement pour remplir toute la taille disponible
-            contentScale = ContentScale.FillBounds  // Ajustement pour s'assurer que l'image remplit toute la taille
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
         )
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -123,14 +123,15 @@ fun PokemonDetailsContent(
                 PokemonDetailsRow(pokemon)
                 Text(
                     text = "Description: ${pokemon.description}",
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = Color.Black
                 )
-                Text(text = "Évolutions :", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
+                Text(text = "Évolutions :", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp), color = Color.Black)
                 DisplayFamilyPokemon(allEvolutions, pokemon)
 
                 CloseButton(onDismiss = onDismiss, modifier = Modifier
-                    .fillMaxSize() // Prend toute la taille disponible
-                    .align(Alignment.CenterEnd) // Centrer à l'extrémité droite (end)
+                    .fillMaxSize()
+                    .align(Alignment.CenterEnd)
                 )
             }
         }
@@ -165,15 +166,15 @@ fun HeaderSection(pokemonName: String, pokemonId: Int, pokemonType: List<String>
                 text = "No. $pokemonId",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Start
+                textAlign = TextAlign.Start,
+                color = Color.Black
             )
-
-            // Pokemon Name à droite
             Text(
                 text = pokemonName,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End
+                textAlign = TextAlign.End,
+                color = Color.Black
             )
         }
     }
@@ -252,22 +253,17 @@ fun PokemonImageSection(pokemon: PokemonModel) {
                     .background(backgroundColor1, shape = RoundedCornerShape(16.dp))
             )
         }
-
-        // Image du Pokémon au-dessus
         AsyncImage(
             model = pokemon.imageUrl,
             contentDescription = null,
-            modifier = Modifier.fillMaxSize() // Remplissez l'espace de la boîte
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
 @Composable
 fun DisplayFamilyPokemon(pokemons: List<PokemonModel>, currentPokemon: PokemonModel) {
-    // Création d'une liste qui inclut le Pokémon actuel et tous les autres pokémons
     val allEvolutionsWithCurrent = mutableListOf(currentPokemon)
     allEvolutionsWithCurrent.addAll(pokemons)
-
-    // Trier la liste par ID
     val sortedEvolutions = allEvolutionsWithCurrent.sortedBy { it.id }
 
     Column(
@@ -314,14 +310,14 @@ fun CloseButton(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     }
 }
 @Composable
-fun ArrowPokemon(color: Color, size: Dp = 80.dp) {  // Réduire la taille de la flèche à 80.dp
+fun ArrowPokemon(color: Color, size: Dp = 80.dp) {
     Canvas(
         modifier = Modifier
             .size(size)
-            .padding(top = 8.dp)  // Ajout d'un padding en haut pour ajuster la position
+            .padding(top = 8.dp)
     ) {
         val arrowLength = size.toPx()
-        val arrowWidth = size.toPx() / 1f  // Réduire la largeur de la flèche
+        val arrowWidth = size.toPx() / 1f
 
         // Draw the arrow body
         drawLine(
