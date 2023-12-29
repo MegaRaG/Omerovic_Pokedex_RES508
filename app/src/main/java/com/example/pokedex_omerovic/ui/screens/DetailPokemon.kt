@@ -2,9 +2,9 @@ package com.example.pokedex_omerovic.ui.screens
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,18 +29,23 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.pokedex_omerovic.R
 import com.example.pokedex_omerovic.ui.theme.typeColors
 import java.util.Locale
 
 class DetailPokemon : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val pokemonId = intent.getIntExtra("pokemonId", 0)
@@ -51,18 +56,17 @@ class DetailPokemon : ComponentActivity() {
             val allPokemons = PokedexApi.retrofitService.getPokemon()
 
             val pokemonDetails = allPokemons.find { it.id == pokemonId }
-            val pokemonFamille1 = evolutionsBeforeIds?.let { ids ->
-                allPokemons.find { it.id == ids.firstOrNull() }
-            }
-            val pokemonFamille2 = evolutionsBeforeIds?.let { ids ->
-                if (ids.size > 1) allPokemons.find { it.id == ids[1] } else null
-            }
-            val pokemonFamilleAfter1 = evolutionsAfterIds?.let { ids ->
-                allPokemons.find { it.id == ids.firstOrNull() }
+
+            // Création de la liste PokemonsBefore
+            val pokemonsBefore = mutableListOf<PokemonModel>()
+            evolutionsBeforeIds?.forEach { id ->
+                allPokemons.find { it.id == id }?.let { pokemonsBefore.add(it) }
             }
 
-            val pokemonFamilleAfter2 = evolutionsAfterIds?.let { ids ->
-                if (ids.size > 1) allPokemons.find { it.id == ids[1] } else null
+            // Création de la liste PokemonsAfter
+            val pokemonsAfter = mutableListOf<PokemonModel>()
+            evolutionsAfterIds?.forEach { id ->
+                allPokemons.find { it.id == id }?.let { pokemonsAfter.add(it) }
             }
 
             withContext(Dispatchers.Main) {
@@ -75,12 +79,10 @@ class DetailPokemon : ComponentActivity() {
                             if (pokemonDetails != null) {
                                 PokemonDetailsContent(
                                     pokemon = pokemonDetails,
-                                    famille1 = pokemonFamille1,
-                                    famille2 = pokemonFamille2,
-                                    familleAfter1 = pokemonFamilleAfter1,
-                                    familleAfter2 = pokemonFamilleAfter2
+                                    pokemonsBefore = pokemonsBefore,
+                                    pokemonsAfter = pokemonsAfter
                                 ) {
-                                    finish() // Fermer l'activité
+                                    finish()
                                 }
                             } else {
                                 Text("Aucun Pokémon trouvé avec l'ID: $pokemonId")
@@ -95,56 +97,46 @@ class DetailPokemon : ComponentActivity() {
 @Composable
 fun PokemonDetailsContent(
     pokemon: PokemonModel,
-    famille1: PokemonModel?,
-    famille2: PokemonModel?,
-    familleAfter1: PokemonModel?,
-    familleAfter2: PokemonModel?,
+    pokemonsBefore: List<PokemonModel>,
+    pokemonsAfter: List<PokemonModel>,
     onDismiss: () -> Unit
 ) {
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = Color(0x600000FF), shape = RectangleShape)
+        Image(
+            painter = painterResource(id = R.drawable.fondpokedexdetail),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),  // Ajustement pour remplir toute la taille disponible
+            contentScale = ContentScale.FillBounds  // Ajustement pour s'assurer que l'image remplit toute la taille
         )
-
-        // Utilisez un LazyColumn pour rendre le contenu scrollable
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp)
         ) {
             item {
+                val allEvolutions = pokemonsBefore + pokemonsAfter
                 HeaderSection(pokemon.name, pokemon.id, pokemon.type)
                 PokemonDetailsRow(pokemon)
+                Text(
+                    text = "Description: ${pokemon.description}",
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                Text(text = "Évolutions :", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
+                DisplayFamilyPokemon(allEvolutions, pokemon)
 
-                if (famille1 != null) {
-                    DisplayFamilyPokemonBefore(evolutionsBefore = listOf(famille1))
-                }
-
-                if (famille2 != null) {
-                    DisplayFamilyPokemonBefore(evolutionsBefore = listOf(famille2))
-                }
-
-                if (familleAfter1 != null) {
-                    DisplayFamilyPokemonAfter(evolutionsAfter = listOf(familleAfter1))
-                }
-
-                if (familleAfter2 != null) {
-                    DisplayFamilyPokemonAfter(evolutionsAfter = listOf(familleAfter2))
-                }
                 CloseButton(onDismiss = onDismiss, modifier = Modifier
                     .fillMaxSize() // Prend toute la taille disponible
                     .align(Alignment.CenterEnd) // Centrer à l'extrémité droite (end)
                 )
-
             }
         }
     }
 }
+
 @Composable
 fun HeaderSection(pokemonName: String, pokemonId: Int, pokemonType: List<String>) {
     val backgroundResourceId = getBackgroundResourceForType(pokemonType.firstOrNull())
@@ -170,7 +162,7 @@ fun HeaderSection(pokemonName: String, pokemonId: Int, pokemonType: List<String>
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "No. ${pokemonId}",
+                text = "No. $pokemonId",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start
@@ -223,7 +215,7 @@ fun PokemonTypeSection(pokemon: PokemonModel, context: Context) {
                     )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
-                Text(text = typeName, color = Color.White)
+                Text(text = typeName, color = Color.Black)
             }
         }
     }
@@ -270,29 +262,24 @@ fun PokemonImageSection(pokemon: PokemonModel) {
     }
 }
 @Composable
-fun DisplayFamilyPokemonAfter(evolutionsAfter: List<PokemonModel>) {
-    if (evolutionsAfter.isNotEmpty()) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+fun DisplayFamilyPokemon(pokemons: List<PokemonModel>, currentPokemon: PokemonModel) {
+    // Création d'une liste qui inclut le Pokémon actuel et tous les autres pokémons
+    val allEvolutionsWithCurrent = mutableListOf(currentPokemon)
+    allEvolutionsWithCurrent.addAll(pokemons)
+
+    // Trier la liste par ID
+    val sortedEvolutions = allEvolutionsWithCurrent.sortedBy { it.id }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        LazyRow(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Evolutions After:")
-            evolutionsAfter.forEach { pokemonAfter ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    AsyncImage(
-                        model = pokemonAfter.imageUrl,
-                        contentDescription = null,
-                        modifier = Modifier.size(100.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = pokemonAfter.name,
-                        textAlign = TextAlign.Center
-                    )
+            items(sortedEvolutions) { pokemon ->
+                PokemonItem(pokemon = pokemon, modifier = Modifier.padding(horizontal = 4.dp))
+                if (sortedEvolutions.indexOf(pokemon) < sortedEvolutions.size - 1) {
+                    ArrowPokemon(color = typeColors[pokemon.type.getOrNull(0)] ?: Color.Black)
                 }
             }
         }
@@ -300,31 +287,19 @@ fun DisplayFamilyPokemonAfter(evolutionsAfter: List<PokemonModel>) {
 }
 
 @Composable
-fun DisplayFamilyPokemonBefore(evolutionsBefore: List<PokemonModel>) {
-    if (evolutionsBefore.isNotEmpty()) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Evolutions Before:")
-            evolutionsBefore.forEach { pokemonBefore ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    AsyncImage(
-                        model = pokemonBefore.imageUrl,
-                        contentDescription = null,
-                        modifier = Modifier.size(100.dp)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = pokemonBefore.name,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-        }
+fun PokemonItem(pokemon: PokemonModel, modifier: Modifier = Modifier) {
+    val painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current).data(data = pokemon.imageUrl).apply(block = fun ImageRequest.Builder.() {
+        }).build()
+    )
+    Box(
+        modifier = modifier.size(70.dp)
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 @Composable
@@ -338,4 +313,34 @@ fun CloseButton(onDismiss: () -> Unit, modifier: Modifier = Modifier) {
         )
     }
 }
+@Composable
+fun ArrowPokemon(color: Color, size: Dp = 80.dp) {  // Réduire la taille de la flèche à 80.dp
+    Canvas(
+        modifier = Modifier
+            .size(size)
+            .padding(top = 8.dp)  // Ajout d'un padding en haut pour ajuster la position
+    ) {
+        val arrowLength = size.toPx()
+        val arrowWidth = size.toPx() / 1f  // Réduire la largeur de la flèche
+
+        // Draw the arrow body
+        drawLine(
+            color = color,
+            start = Offset(0f, arrowWidth / 2),
+            end = Offset(arrowLength - arrowWidth / 2, arrowWidth / 2),
+            strokeWidth = 8f  // Réduire l'épaisseur de la flèche
+        )
+
+        // Draw the arrow tip
+        val tipPath = androidx.compose.ui.graphics.Path().apply {
+            moveTo(arrowLength - arrowWidth / 2, 0f)
+            lineTo(arrowLength, arrowWidth / 2)
+            lineTo(arrowLength - arrowWidth / 2, arrowWidth)
+            close()
+        }
+        drawPath(tipPath, color = color)
+    }
+}
+
+
 
