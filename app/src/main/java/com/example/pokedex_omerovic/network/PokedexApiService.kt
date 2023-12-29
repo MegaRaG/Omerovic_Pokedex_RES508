@@ -9,7 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.http.GET
 
 private const val BASE_URL =
-    "https://raw.githubusercontent.com/Josstoh/res508-qualite-dev-android/main/rest/"
+    "https://raw.githubusercontent.com/MegaRaG/CreationJsonCompletPokedex/main/"
 
 
 private val retrofit = Retrofit.Builder()
@@ -20,7 +20,7 @@ private val retrofit = Retrofit.Builder()
  * Retrofit service object for creating api calls
  */
 interface PokedexApiService {
-    @GET("pokemons.json")
+    @GET("pokemon_transformed.json")
     suspend fun getPokemon(): List<PokemonModel>
 }
 

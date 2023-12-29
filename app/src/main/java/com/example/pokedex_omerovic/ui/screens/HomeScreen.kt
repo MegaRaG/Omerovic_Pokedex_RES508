@@ -128,17 +128,29 @@ fun PokemonCard(pokemon: PokemonModel) {
 @Composable
 fun getDrawableForType(context: Context, type: String): Int? {
     val resourceId = when (type) {
-        context.getString(R.string.Pokemon_Type_Eau) -> R.drawable.eau
         context.getString(R.string.Pokemon_Type_Feu) -> R.drawable.feu
+        context.getString(R.string.Pokemon_Type_Eau) -> R.drawable.eau
         context.getString(R.string.Pokemon_Type_Plante) -> R.drawable.plante
+        context.getString(R.string.Pokemon_Type_Electrik) -> R.drawable.electrik
+        context.getString(R.string.Pokemon_Type_Glace) -> R.drawable.glace
+        context.getString(R.string.Pokemon_Type_Combat) -> R.drawable.combat
         context.getString(R.string.Pokemon_Type_Poison) -> R.drawable.poison
-        context.getString(R.string.Pokemon_Type_Insecte) -> R.drawable.insecte
+        context.getString(R.string.Pokemon_Type_Sol) -> R.drawable.sol
         context.getString(R.string.Pokemon_Type_Vol) -> R.drawable.vol
+        context.getString(R.string.Pokemon_Type_Psy) -> R.drawable.psy
+        context.getString(R.string.Pokemon_Type_Insecte) -> R.drawable.insecte
+        context.getString(R.string.Pokemon_Type_Roche) -> R.drawable.roche
+        context.getString(R.string.Pokemon_Type_Spectre) -> R.drawable.spectre
+        context.getString(R.string.Pokemon_Type_Dragon) -> R.drawable.dragon
+        context.getString(R.string.Pokemon_Type_Tenebres) -> R.drawable.tenebres
+        context.getString(R.string.Pokemon_Type_Acier) -> R.drawable.acier
+        context.getString(R.string.Pokemon_Type_Fee) -> R.drawable.fee
         context.getString(R.string.Pokemon_Type_Normal) -> R.drawable.normal
         else -> null
     }
     return resourceId
 }
+
 
 
 @Composable
