@@ -1,12 +1,14 @@
 package com.example.pokedex_omerovic.ui.screens
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -43,7 +45,7 @@ import coil.request.ImageRequest
 import com.example.pokedex_omerovic.R
 import com.example.pokedex_omerovic.ui.theme.typeColors
 import java.util.Locale
-
+import androidx.compose.ui.platform.LocalContext
 class DetailPokemon : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -263,6 +265,7 @@ fun PokemonImageSection(pokemon: PokemonModel) {
 fun DisplayFamilyPokemon(pokemons: List<PokemonModel>, currentPokemon: PokemonModel) {
     val allEvolutionsWithCurrent = mutableListOf(currentPokemon)
     allEvolutionsWithCurrent.addAll(pokemons)
+    val context = LocalContext.current
     val sortedEvolutions = allEvolutionsWithCurrent.sortedBy { it.id }
 
     Column(
@@ -272,7 +275,24 @@ fun DisplayFamilyPokemon(pokemons: List<PokemonModel>, currentPokemon: PokemonMo
             modifier = Modifier.fillMaxWidth()
         ) {
             items(sortedEvolutions) { pokemon ->
-                PokemonItem(pokemon = pokemon, modifier = Modifier.padding(horizontal = 4.dp))
+                PokemonItem(
+                    pokemon = pokemon,
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    onClick = {
+                        val intent = Intent(context, DetailPokemon::class.java)
+                        intent.putExtra("pokemonId", pokemon.id)
+
+                        if (pokemon.evolutions.before.isNotEmpty()) {
+                            intent.putIntegerArrayListExtra("EvolutionsBeforeIds", ArrayList(pokemon.evolutions.before))
+                        }
+
+                        if (pokemon.evolutions.after.isNotEmpty()) {
+                            intent.putIntegerArrayListExtra("EvolutionsAfterIds", ArrayList(pokemon.evolutions.after))
+                        }
+
+                        context.startActivity(intent)
+                    }
+                )
                 if (sortedEvolutions.indexOf(pokemon) < sortedEvolutions.size - 1) {
                     ArrowPokemon(color = typeColors[pokemon.type.getOrNull(0)] ?: Color.Black)
                 }
@@ -280,15 +300,16 @@ fun DisplayFamilyPokemon(pokemons: List<PokemonModel>, currentPokemon: PokemonMo
         }
     }
 }
-
 @Composable
-fun PokemonItem(pokemon: PokemonModel, modifier: Modifier = Modifier) {
+fun PokemonItem(pokemon: PokemonModel, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current).data(data = pokemon.imageUrl).apply(block = fun ImageRequest.Builder.() {
         }).build()
     )
     Box(
-        modifier = modifier.size(70.dp)
+        modifier = modifier
+            .size(70.dp)
+            .clickable(onClick = onClick)
     ) {
         Image(
             painter = painter,
