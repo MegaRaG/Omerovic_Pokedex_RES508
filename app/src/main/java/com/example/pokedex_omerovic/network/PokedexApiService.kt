@@ -16,17 +16,11 @@ private val retrofit = Retrofit.Builder()
     .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
     .baseUrl(BASE_URL)
     .build()
-/**
- * Retrofit service object for creating api calls
- */
 interface PokedexApiService {
     @GET("pokemon_transformed.json")
     suspend fun getPokemon(): List<PokemonModel>
 }
 
-/**
- * A public Api object that exposes the lazy-initialized Retrofit service
- */
 object PokedexApi {
     val retrofitService: PokedexApiService by lazy {
         retrofit.create(PokedexApiService::class.java)

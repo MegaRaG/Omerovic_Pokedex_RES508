@@ -17,7 +17,7 @@ sealed interface PokedexUiState {
     object Loading : PokedexUiState
 }
 
-class PokedexModel  : ViewModel() {
+class PokedexModel : ViewModel() {
     var pokemons: List<PokemonModel> by mutableStateOf(emptyList())
     var pokedexUiState: PokedexUiState by mutableStateOf(PokedexUiState.Loading)
         private set

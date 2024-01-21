@@ -1,7 +1,6 @@
 package com.example.pokedex_omerovic.ui.screens
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.painterResource
@@ -26,29 +24,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.pokedex_omerovic.R
 import com.example.pokedex_omerovic.model.PokemonModel
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.pokedex_omerovic.ui.theme.typeColors
+
 @Composable
-fun ResultScreen(pokemons: List<PokemonModel>, modifier: Modifier = Modifier) {
-    LazyColumn(
-        modifier = modifier,
-        content = {
-            items(pokemons) { pokemon ->
-                PokemonCard(pokemon = pokemon)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-        }
-    )
-}
-@Composable
-fun PokemonCard(pokemon: PokemonModel) {
+fun PokemonCard(pokemon: PokemonModel, navController: NavController) {
     val typeColor = typeColors[pokemon.type.firstOrNull()] ?: Color.Gray
     val context = LocalContext.current
 
@@ -58,18 +45,7 @@ fun PokemonCard(pokemon: PokemonModel) {
             .padding(8.dp)
             .height(120.dp)
             .clickable {
-                val intent = Intent(context, DetailPokemon::class.java)
-                intent.putExtra("pokemonId", pokemon.id)
-
-                if (pokemon.evolutions.before.isNotEmpty()) {
-                    intent.putIntegerArrayListExtra("EvolutionsBeforeIds", ArrayList(pokemon.evolutions.before))
-                }
-
-                if (pokemon.evolutions.after.isNotEmpty()) {
-                    intent.putIntegerArrayListExtra("EvolutionsAfterIds", ArrayList(pokemon.evolutions.after))
-                }
-
-                context.startActivity(intent)
+                navController.navigate("detailPokemon/${pokemon.id}")
             },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -86,13 +62,14 @@ fun PokemonCard(pokemon: PokemonModel) {
                 Text(text = "No. ${pokemon.id}", color = Color.White)
                 pokemon.type.take(2).forEach { typeName ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        getDrawableForType(context, typeName)?.let { painterResource(id = it) }?.let {
-                            Image(
-                                painter = it,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
+                        getDrawableForType(context, typeName)?.let { painterResource(id = it) }
+                            ?.let {
+                                Image(
+                                    painter = it,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(text = typeName, color = Color.White)
                     }
@@ -152,7 +129,6 @@ fun getDrawableForType(context: Context, type: String): Int? {
 }
 
 
-
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier) {
     Image(
@@ -161,6 +137,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
         contentDescription = stringResource(R.string.loading)
     )
 }
+
 @Composable
 fun ErrorScreen(modifier: Modifier = Modifier) {
     Column(
